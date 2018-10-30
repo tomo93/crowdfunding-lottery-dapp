@@ -1,0 +1,27 @@
+-------------------------------------
+abi interface
+
+[{"constant":true,"inputs":[{"name":"","type":"bytes32"}],"name":"ratingsReceived","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"movieList","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"movieNames","type":"bytes32[]"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"constant":true,"inputs":[{"name":"movie","type":"bytes32"}],"name":"totalVotesFor","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"movie","type":"bytes32"}],"name":"voteForMovie","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]
+
+address ='0x74961c07bc186ce2d3d9ff16c18490f2ae3aa1d5'   NOMECONTRATTO.ADDRESS
+-----------------------------------------
+
+
+
+-Il back end è realizzato tramite un progetto truffle per facilita la compilazione/deployment dei contratti
+-COntratti vengono deployati su ganache Cli, la blochachain per lo sviluppo (prima di passare ad una rete 
+di test o alla MAINNET di Ethereum)
+
+
+-Il frontEnd è una applicazione in ReactJs che tramite web3 interagisce con la blockchain
+
+
+
+ESEGUIRE UNA DAPP (Ethereum+ReactJS)
+Aprire 3 Prompt dei Comandi
+1) aprire l'app react (npm start)
+2) aprire ganache cli
+3) aprire backend (progetto truffle), compilare e migrare contratti sulla blockchain ganache
+
+nell applicazione react (appui) eseguire nmp install ipfs-api
+creare file ipfs.js di setup ed importarlo in App.js
