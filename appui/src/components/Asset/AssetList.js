@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
-//import ToDoItems from './ToDoItems';
 import _ from 'lodash';
-import { Link } from 'react-router-dom'
-//import './AssetList.css';
- import Web3 from 'web3';
+import { Link } from 'react-router-dom';
+//import Web3 from 'web3';
 
 import { assetContract } from "./../../setupAssetContract";
 import './AssetList.css';
-var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+// var web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+import web3 from './../../web3';
+
 
 class AssetList extends Component {
   constructor(props) {
   super(props);
 
   this.state = {
-     block_ids: [],
-     block_hashes: [],
+     // block_ids: [],
+     // block_hashes: [],
      curr_block: null,
      items: [],
      defaultAccount: '0x'
    }
+
    this.addItem=this.addItem.bind(this);
    this.getBlocks=this.getBlocks.bind(this);
   //console.log("dal costrutt "+localStorage.getItem('ticker'));
@@ -32,7 +33,7 @@ class AssetList extends Component {
     //recupero dell'account 0
     web3.eth.getAccounts().then((accounts) => {
       this.setState({defaultAccount:accounts[0]});
-      console.log("accountCoinbase:["+this.state.defaultAccount+"]");
+      console.log("accountCoinbase:["+accounts[0]+"]");
     });
 
 
@@ -49,31 +50,29 @@ Recupero degli assetts registrati sulla blockchain
 
    assetContract.methods.getNoOfAssetsTotal().call().then((result)=>{
      this.setState({curr_block:result});
-     console.log("result "+ result);
+     console.log("Numero totale di prodotti caricati = "+ result);
      return result
-   }).then((data) => {
+   }).then((totalAssets) => {
 
         this.setState({items:[]  })
-        console.log("dentro getBlocks"+data);
 
-               for ( let x = 0; x < data; x++) {
+        for ( let x = 0; x < totalAssets; x++) {
 
-                 assetContract.methods.getAsset(this.state.defaultAccount,x).call().then((result)=>{
-
-                         //console.log("Nome dei prodotto: "+ x+"= "+result[0]);
-                         var newItemRetrieved={
-                           name: result[0],
-                           description: result[1],
-                           cost: result[2],
-                           manufacturer: result[3],
-                           ownerAddress:  result[4],
-                           assetId: result[5]
-                         };
-                         const items = [...this.state.items]
-                         items.push(newItemRetrieved)
-                         this.setState({items:items  })
-                   });
-               }//fine for
+               assetContract.methods.getAsset(this.state.defaultAccount,x).call().then((result)=>{
+                  //console.log("Nome dei prodotto: "+ x+"= "+result[0]);
+                   var newItemRetrieved={
+                     name: result[0],
+                     description: result[1],
+                     cost: result[2],
+                     manufacturer: result[3],
+                     ownerAddress:  result[4],
+                     assetId: result[5]
+                   };
+                   const items = [...this.state.items]
+                   items.push(newItemRetrieved)
+                   this.setState({items:items  })
+               });
+        }//fine for
 
    });
 
@@ -117,22 +116,6 @@ addItem(e){
         // Do something to alert the user their transaction has failed
         console.log("Not created ");
       });
-
-
-      // var newItem={
-      //   name: this._inputElementb.value,
-      //   description: this._inputElementc.value,
-      //   manufacturer: this._inputElementd.value,
-      //   cost: this._inputElemente.value
-      // };
-      //
-      // this.setState((prevState)=>{
-      //   return {
-      //     items: prevState.items.concat(newItem)
-      //   };
-      // });
-
-      //this.getBlocks(this.state.curr_block);
 
 
     //resetto i campi del form
@@ -188,7 +171,7 @@ addItem(e){
                  <input ref={(c) => this._inputElementc=c} type="text" placeholder="Description"></input>
                  <input ref={(d) => this._inputElementd=d} type="text" placeholder="Manufacturer"></input>
                  <input ref={(e) => this._inputElemente=e} type="number" placeholder="Cost"></input>
-                 <button type="submit">Invia</button>
+                 <button type="submit">Carica</button>
                </form>
 
            </div>
@@ -196,13 +179,15 @@ addItem(e){
 
        {/*Lista dei prodotti/asset */}
         <table>
-          <thead><tr>
+          <thead>
+          <tr>
           <th> Id</th>
             <th> Name</th>
             <th>Description</th>
             <th>Manufacture</th>
             <th>Cost</th>
-          </tr></thead>
+          </tr>
+          </thead>
           <tbody>
             {tableRows}
           </tbody>

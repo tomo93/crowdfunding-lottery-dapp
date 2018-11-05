@@ -22,7 +22,7 @@ class App extends Component {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo"/>
         <h1 className="App-title">Welcome to EtherMarket</h1>
-        <h2>Created by Antonino Modica</h2>
+        <h2>Created by me</h2>
       </header>
       <p className="App-intro">
         Welcome on EtherMarket
@@ -31,8 +31,9 @@ class App extends Component {
 
       <Router>
         <div>
-          <Link to="/">Asset List</Link>
+          <Link to="/">Asset List</Link> |
           <Link to="/asset">Asset</Link>
+          <hr/>
           <Route exact="exact" path="/" component={AssetList}/>
           <Route exact="exact" path="/asset" render={() => (<h3>Please select a asset.</h3>)}/>
           <Route path="/asset/:assetinfo" component={AssetInfo}/> {/* This is an example of a URL parameter */}

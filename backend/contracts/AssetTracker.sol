@@ -63,6 +63,7 @@ function createAsset(string _name, string _description, string _manufacturer, ui
       ownedLands[msg.sender].push(myAsset); //tutti gli asset per ogni owner
 
       assetStore[totalLandsCounter] = myAsset;
+      walletStore[msg.sender][totalLandsCounter] = true;
       ownerAssetCount[msg.sender]++;
       emit AssetCreate(msg.sender, totalLandsCounter, _manufacturer);
       totalLandsCounter = totalLandsCounter + 1;
@@ -95,8 +96,10 @@ We check two pre-conditions:
 - the transaction initiator is actually in possession of the asset.
 
 */
-function transferAsset(address _to, uint _uuid) public{
-    if(!assetStore[_uuid].initialized) {
+function transferAsset(address _to, uint _uuid) public returns (bool){
+
+
+  if(!assetStore[_uuid].initialized) {
         emit RejectTransfer(msg.sender, _to, _uuid, "No asset with this UUID exists");
         return;
     }
@@ -104,25 +107,56 @@ function transferAsset(address _to, uint _uuid) public{
         emit RejectTransfer(msg.sender, _to, _uuid, "Sender does not own this asset.");
         return;
     }
-    walletStore[msg.sender][_uuid] = false;
-    walletStore[_to][_uuid] = true;
-    emit AssetTransfer(msg.sender, _to, _uuid);
+    //find out the particular land ID in owner's collection
+    for(uint i=0; i < (ownedLands[msg.sender].length);i++)
+    {
+        //if given land ID is indeed in owner's collection
+        if (ownedLands[msg.sender][i].assetId == _uuid)
+        {
+            //copy land in new owner's collection
+            Asset memory myAsset = Asset(
+                {
+
+                    cost: ownedLands[msg.sender][i].cost,
+                    name:ownedLands[msg.sender][i].name,
+                    description:ownedLands[msg.sender][i].description,
+                    initialized: true,
+                    manufacturer:ownedLands[msg.sender][i].manufacturer,
+                    ownerAddress:_to,
+                    assetId: _uuid
+                });
+            ownedLands[_to].push(myAsset);
+            //ownedLands[_to][i]=myAsset;
+            //remove asset from current ownerAddress
+            delete ownedLands[msg.sender][i];
+
+
+            walletStore[msg.sender][_uuid] = false;
+            walletStore[_to][_uuid] = true;
+
+            //inform the world
+          emit AssetTransfer(msg.sender, _to, _uuid);
+
+            return true;
+        }
+    }
+
+    //if we still did not return, return false
+    return false;
 }
 
 
 /*
 We would also like to have access to the asset properties by just giving the uuid
 */
-  function getAssetByUUID(uint _uuid) public view returns (string, string, string) {
-      return (assetStore[_uuid].name, assetStore[_uuid].description, assetStore[_uuid].manufacturer);
+  function getAssetByUUID(uint _uuid) public view returns (string, string, string, uint,address) {
+      return (assetStore[_uuid].name, assetStore[_uuid].description, assetStore[_uuid].manufacturer, assetStore[_uuid].cost,assetStore[_uuid].ownerAddress );
   }
 
 /*
 Furthermore, we would like to have a simple way to prove the ownership of an asset
 */
-
-
-  function isOwnerOf(address _owner, uint _uuid) public constant returns (bool) {
+function isOwnerOf(address _owner, uint _uuid) public constant returns (bool) {
     if(walletStore[_owner][_uuid]) {
         return true;
     }
