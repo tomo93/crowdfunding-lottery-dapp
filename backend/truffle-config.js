@@ -17,10 +17,10 @@
 module.exports = {
     networks: {
       development: {
-        host: "localhost",
+        host: "127.0.0.1",
         port: 8545,
         //from: “0xf17f52151ebef6c7334fad080c5704d77216b732”,   Deploying from a specific account
-        network_id: "*" // Match any network id
+        network_id: "5777" // Match any network id
       }
     }
 };

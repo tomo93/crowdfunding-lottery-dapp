@@ -60,17 +60,20 @@ Recupero degli assetts registrati sulla blockchain
 
                assetContract.methods.getAsset(this.state.defaultAccount,x).call().then((result)=>{
                   //console.log("Nome dei prodotto: "+ x+"= "+result[0]);
-                   var newItemRetrieved={
+                   let newItemRetrieved={
                      name: result[0],
                      description: result[1],
                      cost: result[2],
                      manufacturer: result[3],
                      ownerAddress:  result[4],
-                     assetId: result[5]
+                     assetId: result[5].valueOf()
                    };
                    const items = [...this.state.items]
+                   console.log("newItemRetrieved.assetId"+ (newItemRetrieved.assetId+1))
+                   if(newItemRetrieved.assetId !== 0){
                    items.push(newItemRetrieved)
                    this.setState({items:items  })
+                 }
                });
         }//fine for
 
@@ -148,6 +151,7 @@ addItem(e){
           <td><Link to={`/asset/${this.state.items[index].assetId}`} params={{ asset: this.state.items[index] }}>{this.state.items[index].description}</Link></td>
           <td className="tdCenter">{this.state.items[index].manufacturer}</td>
           <td className="tdCenter">{this.state.items[index].cost}</td>
+          <td className="tdCenter">{this.state.items[index].ownerAddress}</td>
         </tr>
       )
     });
@@ -182,10 +186,11 @@ addItem(e){
           <thead>
           <tr>
           <th> Id</th>
-            <th> Name</th>
+            <th>Titolo</th>
             <th>Description</th>
             <th>Manufacture</th>
             <th>Cost</th>
+            <th>Owner</th>
           </tr>
           </thead>
           <tbody>

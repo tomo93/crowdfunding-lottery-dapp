@@ -44,14 +44,14 @@ between the message sender's wallet and the asset's uuid
 
 //owner shall add lands via this function
 function createAsset(string _name, string _description, string _manufacturer, uint _cost) public{
+
+  //verificare se funziona
     // if(assetStore[uuid].initialized) {
     //     emit RejectCreate(msg.sender, uuid, "Asset with this UUID already exists.");
     //     return;
-    //   }
+    // }
 
-
-      Asset memory myAsset = Asset(
-          {
+    Asset memory myAsset = Asset({
              name:_name,
              description:_description,
              initialized: true,
@@ -59,14 +59,16 @@ function createAsset(string _name, string _description, string _manufacturer, ui
              ownerAddress:msg.sender,
              cost:_cost,
              assetId: totalLandsCounter
-          });
-      ownedLands[msg.sender].push(myAsset); //tutti gli asset per ogni owner
+    });
 
-      assetStore[totalLandsCounter] = myAsset;
-      walletStore[msg.sender][totalLandsCounter] = true;
-      ownerAssetCount[msg.sender]++;
-      emit AssetCreate(msg.sender, totalLandsCounter, _manufacturer);
-      totalLandsCounter = totalLandsCounter + 1;
+
+    ownedLands[msg.sender].push(myAsset); //tutti gli asset per ogni owner
+
+    assetStore[totalLandsCounter] = myAsset;
+    walletStore[msg.sender][totalLandsCounter] = true;
+    ownerAssetCount[msg.sender]++;
+    emit AssetCreate(msg.sender, totalLandsCounter, _manufacturer);
+    totalLandsCounter = totalLandsCounter + 1;
 
 }
 
@@ -97,45 +99,43 @@ We check two pre-conditions:
 
 */
 function transferAsset(address _to, uint _uuid) public returns (bool){
-
-
   if(!assetStore[_uuid].initialized) {
         emit RejectTransfer(msg.sender, _to, _uuid, "No asset with this UUID exists");
         return;
-    }
-    if(!walletStore[msg.sender][_uuid]) {
+  }
+
+  if(!walletStore[msg.sender][_uuid]) {
         emit RejectTransfer(msg.sender, _to, _uuid, "Sender does not own this asset.");
         return;
-    }
+  }
+
     //find out the particular land ID in owner's collection
-    for(uint i=0; i < (ownedLands[msg.sender].length);i++)
-    {
+  for(uint i=0; i < (ownedLands[msg.sender].length);i++){
         //if given land ID is indeed in owner's collection
         if (ownedLands[msg.sender][i].assetId == _uuid)
         {
             //copy land in new owner's collection
-            Asset memory myAsset = Asset(
-                {
+            Asset memory myAsset = Asset({
+                cost: ownedLands[msg.sender][i].cost,
+                name:ownedLands[msg.sender][i].name,
+                description:ownedLands[msg.sender][i].description,
+                initialized: true,
+                manufacturer:ownedLands[msg.sender][i].manufacturer,
+                ownerAddress:_to,
+                assetId: _uuid
+            });
 
-                    cost: ownedLands[msg.sender][i].cost,
-                    name:ownedLands[msg.sender][i].name,
-                    description:ownedLands[msg.sender][i].description,
-                    initialized: true,
-                    manufacturer:ownedLands[msg.sender][i].manufacturer,
-                    ownerAddress:_to,
-                    assetId: _uuid
-                });
             ownedLands[_to].push(myAsset);
-            //ownedLands[_to][i]=myAsset;
-            //remove asset from current ownerAddress
-            delete ownedLands[msg.sender][i];
+            ownedLands[msg.sender][i]=myAsset;   //sovrascrivo?? Metodo migliore quale è?
+
+            delete ownedLands[msg.sender][i];    //remove asset from current ownerAddress
 
 
             walletStore[msg.sender][_uuid] = false;
             walletStore[_to][_uuid] = true;
 
             //inform the world
-          emit AssetTransfer(msg.sender, _to, _uuid);
+            emit AssetTransfer(msg.sender, _to, _uuid);
 
             return true;
         }
@@ -164,13 +164,7 @@ function isOwnerOf(address _owner, uint _uuid) public constant returns (bool) {
 }
 
 
-function getAsset(address _landHolder, uint _index) view  public returns (string, string, uint, string, address, uint)
-{
-    // return (ownedLands[_landHolder][_index].name,
-    //         ownedLands[_landHolder][_index].description,
-    //         ownedLands[_landHolder][_index].cost,
-    //         ownedLands[_landHolder][_index].ownerAddress
-    //       );
+function getAsset(address _landHolder, uint _index) view  public returns (string, string, uint, string, address, uint){
 
     return (ownedLands[_landHolder][_index].name,
             ownedLands[_landHolder][_index].description,
@@ -181,15 +175,13 @@ function getAsset(address _landHolder, uint _index) view  public returns (string
           );
 }
 
-function getNoOfAssets(address _landHolder) public view returns (uint)
-{
+function getNoOfAssets(address _landHolder) public view returns (uint){
    return ownedLands[_landHolder].length;
 
 }
 
 
-function getNoOfAssetsTotal() view public returns (uint8)
-{
+function getNoOfAssetsTotal() view public returns (uint8){
   //  return ownedLands[_landHolder].length;
    return totalLandsCounter;
 }
